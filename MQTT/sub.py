@@ -54,7 +54,7 @@ def on_message(client, userdata, msg):
     print("Image Received", time.ctime())
     f.close()
 
-client = mqtt.Client("subscriber_test")
+client = mqtt.Client("subscriber_test", clean_session=False)
 
 client.on_connect = on_connect
 client.on_message = on_message
