@@ -1,5 +1,7 @@
+from doctest import OutputChecker
 import paho.mqtt.client as mqtt
 import time
+import json, base64
 
 MQTT_BROKER = "192.168.56.1" 
 MQTT_TOPIC_1 = "Image/images"
@@ -27,17 +29,24 @@ def pub(client, topic, msg, qos):
 def sub(client, topic, qos):
     client.subscribe(topic, qos)
 
-def on_message(client, userdata, msg):
-    name = time.strftime("%H%M%S")
-    name= "output"+name+".jpg"
+def json_to_data(msg):
+    msg= msg.decode()
+    msg = json.loads(msg)
+    img_data = base64.b64decode(msg["data"])
+    name = msg["timeid"]+msg["filename"]
+    print(name)
     f = open(name, "wb")
-    f.write(msg.payload)
-    print("Image Received", time.ctime())
+    f.write(img_data)
+    print("Image Saved")
     f.close()
-    List_sub_message.append(True)
-    print("Totally {} data received" .format(len(List_sub_message)))
-    pub(client, MQTT_TOPIC_2, "data received", 1 )
+    List_sub_message.append(msg["filename"])
+    print("Recived data ", msg["filename"],  "Data Size: ", msg["filesize"])
 
+def on_message(client, userdata, msg):
+    json_to_data(msg.payload)
+    print("Totally {} data received" .format(len(List_sub_message)))
+    pub(client, MQTT_TOPIC_2, "data received"+List_sub_message[-1], 1 )
+    
 
 
 
