@@ -1,4 +1,3 @@
-from doctest import OutputChecker
 import paho.mqtt.client as mqtt
 import time
 import json, base64
